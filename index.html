@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Neighborhood Map</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+  </head>
+
+  <body>
+
+    <button id="toggle-sidebar">Show Sidebar</button>
+    <nav class="filter-box">
+      <h1>Location of the neightborhood</h1>
+      <div class="listing-buttons">
+        <input id="show-listings" data-bind="click: showListings" type="button" value="Show All Places">
+        <input id="hide-listings" data-bind="click: hideListings" type="button" value="Hide All Places">
+      </div>
+      <hr>
+      <div class="search-area">
+        <input id="places-search" data-bind="textInput: searchBar, valueUpdate: filterListings" type="text" placeholder="Location name contains:">
+        <input id="go-places" data-bind="click: filterListings" type="button" value="Filter">
+        <ul style="list-style-type:none" data-bind="foreach: locations">
+          <li data-bind="visible:visible, text: location.title, click:$parent.onItemClicked"></li>
+        </ul>
+      </div>
+      <ul id="location-list"></ul>
+    </nav>
+    
+    <main id="map"></main>
+
+    <script>
+      var toggleSidebar = document.getElementById('toggle-sidebar');
+      var sidebar = document.getElementsByClassName('filter-box')[0];
+      var main = document.getElementsByTagName('main')[0];
+
+      // click sidebar button to toggle
+      toggleSidebar.addEventListener('click', function(e) {
+        sidebar.classList.toggle('open');
+        e.stopPropagation();
+      });
+
+      // or click the map the hide
+      main.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+      });
+    </script>
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/knockout-3.2.0.js"></script>
+    <script src="js/app.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDNSFY8DWFr_lxu8R5UbeRYFrhoh37xDY&callback=initMap"
+     async defer></script>
+
+  </body>
+</html>

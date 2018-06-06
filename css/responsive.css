@@ -1,0 +1,25 @@
+@media screen and (max-device-width: 1024px), screen and (max-device-height: 768px){
+  body {
+    font-size: 1.25em;
+  }
+
+
+  #toggle-sidebar {
+      display: inline-block;
+  }
+
+  nav {
+     transition: transform 0.3s ease;
+     transform: translate(-400px, 0);
+  }
+
+  nav.open {
+  -webkit-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+
+  #map {
+    left: 0px;
+    z-index: -1;
+  }
+}
