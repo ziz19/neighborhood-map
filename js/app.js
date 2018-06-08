@@ -116,6 +116,7 @@ function appendInfoWindow(marker) {
         alert('We are having an issue from wikipedia\n' +
           'Don\'t worry! Map still works.\n' +
           'Error Code: ' + errorCode);
+        }
   });
 
   // highlight marker when clicked
