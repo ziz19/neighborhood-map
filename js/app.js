@@ -52,7 +52,7 @@ function initMap() {
   for(var i = 0; i < data.length; i++) {
     var marker = createMarker(data[i]);
     appendInfoWindow(marker);
-    markers.push(marker)  // store created markers in array
+    markers.push(marker);  // store created markers in array
   }
 }
 
@@ -110,16 +110,20 @@ function appendInfoWindow(marker) {
         var description = response[2][0];
         if (description) {
           infoWindow.setContent('<p>' + description + '</p>');
-        };
-      }
+        }
+      },
+      error: function(response, errorCode) {
+        alert('We are having an issue from wikipedia\n' +
+          'Don\'t worry! Map still works.\n' +
+          'Error Code: ' + errorCode);
   });
 
   // highlight marker when clicked
   marker.addListener('click', function() {
     hideAllInfoWindows(infoWindows);
-    marker.setIcon(highlightedIcon)
+    marker.setIcon(highlightedIcon);
     infoWindow.open(map, marker);
-  })
+  });
 
   // delete infoWindow when closed
   infoWindow.addListener('closeclick', function(){
@@ -145,35 +149,40 @@ function hideMarker(marker) {
 
 /** display all markers */
 function showAllMarkers(markers){
-  for(var i = 0; i < markers.length; i++) {
-    showMarker(markers[i]);
-  }
+  markers.forEach(function(marker) {
+    showMarker(marker);
+  });
 }
 
 
 /** hide all markers */
 function hideAllMarkers(markers){
-  for(var i = 0; i < markers.length; i++) {
-    hideMarker(markers[i]);
-  }
+  markers.forEach(function(marker) {
+    hideMarker(marker);
+  });
 }
 
 
 /** hide a specific info window*/
 function hideInfoWindow(infoWindow) {
-  infoWindow.close()
+  infoWindow.close();
   infoWindow.marker.setIcon(defaultIcon);
 }
 
 
 /** hide all info windows*/
 function hideAllInfoWindows(infoWindows) {
-  for(var i = 0; i < markers.length; i++) {
-    hideInfoWindow(infoWindows[i]);
-  }
+  infoWindows.forEach(function(infoWindow) {
+    hideInfoWindow(infoWindow);
+  });
 }
 
+/** handle errors when google map fail to load */
+function googleError() {
+  document.getElementById('map').innerHTML = 'Sorry, it seems that there is an error when loading google map<br>' +
+    'Please try refresh the page';
 
+}
 
 // -------------------------- ViewModel ------------------------------------------
 var ViewModel = function() {
@@ -181,6 +190,21 @@ var ViewModel = function() {
     return {location, 'index':index, 'visible':ko.observable(true)}; // add visible flag
   }));
   this.searchBar = ko.observable(''); // input from filter box
+
+  // make search bar immediately respond to text change event
+  this.searchBar.subscribe(function(newText) {
+    this.showListings(); // reset all locations to visible
+    var nameLowerCase = newText.toLowerCase();
+
+    // hide places if its name does not contain what's in the search bar
+    for(var i = 0; i < this.locations().length; i++) {
+      var titleLowerCase = this.locations()[i].location.title.toLowerCase();
+      if (!titleLowerCase.includes(nameLowerCase)) {
+        this.locations()[i].visible(false);
+        hideMarker(markers[i]);
+      }
+    }
+  }, this);
 
   /** display all listings and markers */
   this.showListings = function() {
@@ -190,7 +214,7 @@ var ViewModel = function() {
     for(var i = 0; i < this.locations().length; i++) {
       this.locations()[i].visible(true);
     }
-  }
+  };
 
 
   /** hide all listings and markers */
@@ -205,28 +229,17 @@ var ViewModel = function() {
   };
 
 
-  /** filter through listings by name */
-  this.filterListings = function() {
-    this.showListings() // display all locations
-    var nameLowerCase = this.searchBar().toLowerCase();
-
-    // hide places if its name does not contain what's in the search bar
-    for(var i = 0; i < this.locations().length; i++) {
-      var titleLowerCase = this.locations()[i].location.title.toLowerCase();
-      if (!titleLowerCase.includes(nameLowerCase)) {
-        this.locations()[i].visible(false);
-        hideMarker(markers[i]);
-      }
-    }
+  /** clear search bar text */
+  this.clearFiltering = function() {
     this.searchBar(''); // reset search bar value
   };
 
 
   /** create an info window on the map when a list item is click */
   this.onItemClicked = function(item) {
-    hideAllInfoWindows(infoWindows) // hide all info windows
-    var marker = markers[item.index] // locate the marker on the map
-    var infoWindow = infoWindows[item.index] // find the info window
+    hideAllInfoWindows(infoWindows); // hide all info windows
+    var marker = markers[item.index]; // locate the marker on the map
+    var infoWindow = infoWindows[item.index]; // find the info window
     marker.setIcon(highlightedIcon);
     infoWindow.open(map, marker);
   };
